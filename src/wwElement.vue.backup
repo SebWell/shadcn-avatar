@@ -1,21 +1,21 @@
 <template>
   <div :class="avatarClasses">
     <img 
-      v-if="src && !imageError"
-      :src="src"
-      :alt="alt"
+      v-if="content.src && !imageError"
+      :src="content.src"
+      :alt="content.alt"
       :class="imageClasses"
       @error="handleImageError"
       @load="handleImageLoad"
     />
     
     <div v-else :class="fallbackClasses">
-      <span v-if="fallbackText">{{ fallbackText }}</span>
-      <component v-else-if="fallbackIcon" :is="fallbackIcon" class="w-1/2 h-1/2" />
+      <span v-if="content.fallbackText">{{ content.fallbackText }}</span>
+      <component v-else-if="content.fallbackIcon" :is="content.fallbackIcon" class="w-1/2 h-1/2" />
       <span v-else>{{ getInitials() }}</span>
     </div>
     
-    <div v-if="showStatus" :class="statusClasses">
+    <div v-if="content.showStatus" :class="statusClasses">
       <div :class="statusDotClasses" />
     </div>
   </div>
@@ -28,9 +28,22 @@ import { cn } from './cn.js'
 export default {
   name: 'WewebAvatar',
   props: {
-        // Individual props will be auto-generated based on the component type
-        // This is a placeholder that will be manually refined per component
-    },
+    content: {
+      type: Object,
+      required: true,
+      default: () => ({
+        src: '',
+        alt: '',
+        fallbackText: '',
+        fallbackIcon: null,
+        name: '',
+        size: 'default',
+        showStatus: false,
+        status: 'offline',
+        customClasses: ''
+      })
+    }
+  },
   setup(props) {
     const imageError = ref(false)
 
@@ -43,8 +56,8 @@ export default {
 
     const avatarClasses = computed(() => cn(
       "relative flex shrink-0 overflow-hidden rounded-full",
-      sizeClasses[props.size] || sizeClasses.default,
-      props.customClasses
+      sizeClasses[props.content.size] || sizeClasses.default,
+      props.content.customClasses
     ))
 
     const imageClasses = computed(() => cn(
@@ -69,13 +82,13 @@ export default {
       
       return cn(
         "h-2 w-2 rounded-full",
-        statusColors[props.status] || statusColors.offline
+        statusColors[props.content.status] || statusColors.offline
       )
     })
 
     const getInitials = () => {
-      if (props.name) {
-        return props.name
+      if (props.content.name) {
+        return props.content.name
           .split(' ')
           .map(word => word.charAt(0))
           .join('')
